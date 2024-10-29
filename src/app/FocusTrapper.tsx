@@ -6,10 +6,10 @@ import { ACCESSIBLE_ELEMENTS, isFocusable } from "./utils/accessbilityHelpers";
 export type FocusTrapperProps = {
     children?: ReactNode,
     className?: string,
-    onEscapePress?: () => void,
     focusOnMount?: boolean,
-    updated: boolean,
+    onEscapePress?: () => void,
     setUpdated: (v: boolean) => void,
+    updated: boolean,
 }
 
 export default function FocusTrapper({ children, className, onEscapePress, focusOnMount, setUpdated, updated }: FocusTrapperProps) {
