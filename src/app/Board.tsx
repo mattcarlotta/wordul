@@ -29,8 +29,8 @@ export default function Board() {
     const handleCharacterChange = (e: ChangeEvent<HTMLInputElement>) => {
         if (new RegExp(/[^A-Za-z]/, "g").test(e.target.value)) return;
 
-        setCharacters(prevCharacters =>
-            prevCharacters.map(c =>
+        setCharacters(prevChars =>
+            prevChars.map(c =>
                 c.id === e.target.id
                     ? { ...c, value: e.target.value.replace(c.value, "") }
                     : c
@@ -41,13 +41,14 @@ export default function Board() {
 
     const handleKeyDown = (e: ReactKeyboardEvent<HTMLInputElement>) => {
         if (e.key === "Backspace" || e.key === "Delete") {
-            setCharacters(prevCharacters =>
-                prevCharacters.map(c =>
+            setCharacters(prevChars =>
+                prevChars.map(c =>
                     c.id === (e.target as HTMLInputElement).id
                         ? { ...c, value: "" }
                         : c
                 )
             );
+            setDeletedChar(true);
         }
     }
 
@@ -68,11 +69,11 @@ export default function Board() {
     const handleButtonPress = (action: string) => {
         switch (action) {
             case "backspace": {
-                setCharacters(prevCharacters => {
-                    const lastCharacter = prevCharacters.findLast(c => c.value.length);
-                    return lastCharacter
-                        ? prevCharacters.map(c => c.id === lastCharacter.id ? { ...c, value: "" } : c)
-                        : prevCharacters;
+                setCharacters(prevChars => {
+                    const lastChar = prevChars.findLast(c => c.value.length);
+                    return lastChar
+                        ? prevChars.map(c => c.id === lastChar.id ? { ...c, value: "" } : c)
+                        : prevChars;
                 });
                 setDeletedChar(true);
                 break;
@@ -82,11 +83,11 @@ export default function Board() {
                 break;
             }
             default:
-                setCharacters(prevCharacters => {
-                    const firstCharacter = prevCharacters.find(c => !c.value.length);
-                    return firstCharacter
-                        ? prevCharacters.map(c => c.id === firstCharacter.id ? { ...c, value: action } : c)
-                        : prevCharacters;
+                setCharacters(prevChars => {
+                    const firstChar = prevChars.find(c => !c.value.length);
+                    return firstChar
+                        ? prevChars.map(c => c.id === firstChar.id ? { ...c, value: action } : c)
+                        : prevChars;
                 });
                 setAddedChar(true);
                 break;
@@ -146,13 +147,28 @@ export default function Board() {
                                 guesses[guess - 1]?.length
                                     ? <p
                                         key={characterIdx}
-                                        className={clsx("uppercase inline-flex justify-center items-center border-2 border-transparent bg-gray-700 before:content-[''] before:inline-block before:pb-[100%]", `delay-${guess}`)}
+                                        className={clsx(
+                                            "uppercase inline-flex animate-reveal justify-center items-center border-2 border-transparent bg-gray-700 before:content-[''] before:inline-block before:pb-[100%]",
+                                            characterIdx === 0 && "animation-delay-100",
+                                            characterIdx === 1 && "animation-delay-200",
+                                            characterIdx === 2 && "animation-delay-300",
+                                            characterIdx === 3 && "animation-delay-400",
+                                            characterIdx === 4 && "animation-delay-500",
+                                        )}
                                     >
                                         {guesses[guess - 1][characterIdx]}
                                     </p>
                                     : <div
                                         key={characterIdx}
-                                        className={clsx("animate-push border-2 border-gray-700 bg-transparent before:content-[''] before:inline-block before:pb-[100%]", `delay-${guess}`)}
+                                        className={clsx(
+                                            "animate-push border-2 border-gray-700 bg-transparent before:content-[''] before:inline-block before:pb-[100%]",
+                                            guess === 1 && "animation-delay-0",
+                                            guess === 2 && "animation-delay-100",
+                                            guess === 3 && "animation-delay-200",
+                                            guess === 4 && "animation-delay-300",
+                                            guess === 5 && "animation-delay-400",
+                                            guess === 6 && "animation-delay-500",
+                                        )}
                                     />
                             )}
                         </div>

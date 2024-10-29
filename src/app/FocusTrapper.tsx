@@ -1,5 +1,5 @@
 import type { ReactNode, KeyboardEvent, MouseEvent } from "react";
-import { useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import type { AccessibleElement } from "./types";
 import { ACCESSIBLE_ELEMENTS, isFocusable } from "./utils/accessbilityHelpers";
 
@@ -35,24 +35,32 @@ export default function FocusTrapper(
         setTabIndex(tabbableItemIndex >= 0 ? tabbableItemIndex : 0);
     }
 
+    const handlePrevFocus = useCallback(() => {
+        const tabItemsLength = tabbableItems.current.length - 1
+        const prevIndex = tabIndex - 1;
+        const currentIndex = prevIndex < 0 ? tabItemsLength : prevIndex;
+        setTabIndex(currentIndex);
+
+    }, [tabIndex]);
+
+    const handleNextFocus = useCallback(() => {
+        const tabItemsLength = tabbableItems.current.length - 1
+        const nextIndex = tabIndex + 1;
+        const currentIndex = nextIndex > tabItemsLength ? 0 : nextIndex;
+        setTabIndex(currentIndex);
+    }, [tabIndex]);
+
     const handleFocusTrap = (event: KeyboardEvent) => {
         const { key, shiftKey } = event;
         const tabPress = key === "Tab";
-        const backSpacePress = key === "Backspace";
         const escKey = key === "Escape" || key === "Esc";
-        const tabItemsLength = tabbableItems.current.length - 1
 
-        if ((shiftKey && tabPress) || backSpacePress) {
+        if (shiftKey && tabPress) {
             event.preventDefault();
-            if (backSpacePress && tabIndex === 0) return;
-            const prevIndex = tabIndex - 1;
-            const currentIndex = prevIndex < 0 ? tabItemsLength : prevIndex;
-            setTabIndex(currentIndex);
+            handleNextFocus();
         } else if (tabPress) {
             event.preventDefault();
-            const nextIndex = tabIndex + 1;
-            const currentIndex = nextIndex > tabItemsLength ? 0 : nextIndex;
-            setTabIndex(currentIndex);
+            handlePrevFocus();
         } else if (escKey) {
             event.stopPropagation();
             onEscapePress?.();
@@ -85,23 +93,18 @@ export default function FocusTrapper(
         };
 
         setAddedChar(false);
-        const nextIndex = tabIndex + 1;
-        const currentIndex = nextIndex > tabItemsLength ? 0 : nextIndex;
-        setTabIndex(currentIndex);
-    }, [tabIndex, addedChar, setAddedChar]);
+        handleNextFocus();
+    }, [tabIndex, addedChar, setAddedChar, handleNextFocus]);
 
     useEffect(() => {
-        const tabItemsLength = tabbableItems.current.length - 1
         if (tabIndex === 0 || !deletedChar) {
             setDeletedChar(false);
             return;
         };
 
         setDeletedChar(false);
-        const prevIndex = tabIndex - 1;
-        const currentIndex = prevIndex < 0 ? tabItemsLength : prevIndex;
-        setTabIndex(currentIndex);
-    }, [tabIndex, deletedChar, setDeletedChar]);
+        handlePrevFocus();
+    }, [tabIndex, deletedChar, setDeletedChar, handlePrevFocus]);
 
     useEffect(() => {
         tabbableItems.current?.[tabIndex]?.focus();
