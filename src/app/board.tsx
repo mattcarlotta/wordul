@@ -79,8 +79,8 @@ export default function Board() {
                                 <Fragment key={id}>
                                     <label className="hidden" htmlFor={id}>Letter {id}</label>
                                     <input
-                                        max={1}
-                                        min={1}
+                                        maxLength={1}
+                                        minLength={1}
                                         id={id}
                                         value={value}
                                         autoComplete="off"
