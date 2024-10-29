@@ -18,7 +18,10 @@ export default function Home() {
                     <h1 className="text-4xl font-extrabold">Word<span className="text-green-700">dull</span></h1>
                 </section>
             </header>
-            <main id="main" className="flex flex-col justify-center items-center py-10">
+            <main
+                id="main"
+                className="flex flex-col justify-center items-center space-y-4 py-10 max-w-lg mx-auto"
+            >
                 <Board />
             </main>
             {/* <footer className="row-start-3 flex gap-6 flex-wrap items-center justify-center"> */}

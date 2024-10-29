@@ -6,18 +6,27 @@ import { ACCESSIBLE_ELEMENTS, isFocusable } from "./utils/accessbilityHelpers";
 export type FocusTrapperProps = {
     children?: ReactNode,
     className?: string,
-    focusOnMount?: boolean,
     onEscapePress?: () => void,
-    setUpdated: (v: boolean) => void,
-    updated: boolean,
+    setAddedChar: (v: boolean) => void,
+    addedChar: boolean;
+    setDeletedChar: (v: boolean) => void,
+    deletedChar: boolean,
 }
 
-export default function FocusTrapper({ children, className, onEscapePress, focusOnMount, setUpdated, updated }: FocusTrapperProps) {
-    const [tabIndex, setTabIndex] = useState(-1);
+export default function FocusTrapper(
+    {
+        children,
+        className,
+        onEscapePress,
+        addedChar,
+        setAddedChar,
+        deletedChar,
+        setDeletedChar,
+    }: FocusTrapperProps) {
+    const [tabIndex, setTabIndex] = useState(0);
     const tabbableItems = useRef<Array<HTMLElement>>([]);
     const lastActiveElement = useRef<HTMLElement | null>(null);
     const focusTrapRef = useRef<HTMLDivElement | null>(null);
-    const isMounted = useRef(focusOnMount);
 
     const handleClick = (event: MouseEvent) => {
         const tabbableItemIndex =
@@ -70,23 +79,31 @@ export default function FocusTrapper({ children, className, onEscapePress, focus
 
     useEffect(() => {
         const tabItemsLength = tabbableItems.current.length - 1
-        if (tabIndex === tabItemsLength || !updated) {
-            setUpdated(false);
+        if (tabIndex === tabItemsLength || !addedChar) {
+            setAddedChar(false);
             return;
         };
 
+        setAddedChar(false);
         const nextIndex = tabIndex + 1;
         const currentIndex = nextIndex > tabItemsLength ? 0 : nextIndex;
-        setUpdated(false);
         setTabIndex(currentIndex);
-    }, [tabIndex, updated, setUpdated]);
+    }, [tabIndex, addedChar, setAddedChar]);
 
     useEffect(() => {
-        if (!isMounted.current) {
-            isMounted.current = true;
+        const tabItemsLength = tabbableItems.current.length - 1
+        if (tabIndex === 0 || !deletedChar) {
+            setDeletedChar(false);
             return;
-        }
+        };
 
+        setDeletedChar(false);
+        const prevIndex = tabIndex - 1;
+        const currentIndex = prevIndex < 0 ? tabItemsLength : prevIndex;
+        setTabIndex(currentIndex);
+    }, [tabIndex, deletedChar, setDeletedChar]);
+
+    useEffect(() => {
         tabbableItems.current?.[tabIndex]?.focus();
     }, [tabIndex]);
 
