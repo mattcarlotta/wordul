@@ -40,7 +40,6 @@ export default function FocusTrapper(
         const prevIndex = tabIndex - 1;
         const currentIndex = prevIndex < 0 ? tabItemsLength : prevIndex;
         setTabIndex(currentIndex);
-
     }, [tabIndex]);
 
     const handleNextFocus = useCallback(() => {

@@ -66,8 +66,8 @@ export default function Board() {
         }
     }, [handleSubmit]);
 
-    const handleButtonPress = (action: string) => {
-        switch (action) {
+    const handleButtonPress = (value: string) => {
+        switch (value) {
             case "backspace": {
                 setCharacters(prevChars => {
                     const lastChar = prevChars.findLast(c => c.value.length);
@@ -86,7 +86,7 @@ export default function Board() {
                 setCharacters(prevChars => {
                     const firstChar = prevChars.find(c => !c.value.length);
                     return firstChar
-                        ? prevChars.map(c => c.id === firstChar.id ? { ...c, value: action } : c)
+                        ? prevChars.map(c => c.id === firstChar.id ? { ...c, value } : c)
                         : prevChars;
                 });
                 setAddedChar(true);
@@ -119,7 +119,7 @@ export default function Board() {
                         >
                             <form
                                 onSubmit={(e) => e.preventDefault()}
-                                className="grid grid-cols-5 gap-1.5 text-white font-bold text-4xl"
+                                className="grid grid-cols-5 gap-1.5 text-white font-bold text-3xl"
                             >
                                 {characters.map(({ id, value }) => (
                                     <Fragment key={id}>
@@ -142,7 +142,7 @@ export default function Board() {
                                 ))}
                             </form>
                         </FocusTrapper>
-                        : <div key={guess} className="grid grid-cols-5 gap-1.5 text-white font-bold text-4xl">
+                        : <div key={guess} className="grid grid-cols-5 gap-1.5 text-white font-bold text-3xl">
                             {[0, 1, 2, 3, 4].map(characterIdx =>
                                 guesses[guess - 1]?.length
                                     ? <p

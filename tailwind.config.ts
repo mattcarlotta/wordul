@@ -16,7 +16,7 @@ const config: Config = {
             animation: {
                 pop: "pop 100ms",
                 push: "push 100ms",
-                reveal: "reveal 1500ms both",
+                reveal: "reveal 1250ms both",
             },
             keyframes: {
                 pop: {
