@@ -15,7 +15,7 @@ export default function Home() {
             </header>
             <header className="text-center border-b border-gray-500 py-4">
                 <section>
-                    <h1 className="text-4xl font-extrabold">Worddull</h1>
+                    <h1 className="text-4xl font-extrabold">Word<span className="text-green-700">dull</span></h1>
                 </section>
             </header>
             <main id="main" className="flex flex-col justify-center items-center py-10">

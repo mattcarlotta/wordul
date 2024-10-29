@@ -1,6 +1,6 @@
 "use client"
 
-import type { ChangeEvent, FormEvent, KeyboardEvent as ReactKeyboardEvent } from "react";
+import type { ChangeEvent, KeyboardEvent as ReactKeyboardEvent } from "react";
 import { Fragment, useCallback, useEffect, useState } from "react";
 import FocusTrapper from "./FocusTrapper";
 import clsx from "clsx";
@@ -12,7 +12,7 @@ type Word = {
 }
 
 export default function Board() {
-    const [activeGuess] = useState(1);
+    const [activeGuess, setGuess] = useState(1);
     const [letters, setLetters] = useState<Array<Word>>([
         { id: "1", value: "", status: "", },
         { id: "2", value: "", status: "", },
@@ -20,6 +20,8 @@ export default function Board() {
         { id: "4", value: "", status: "", },
         { id: "5", value: "", status: "", }
     ]);
+    const [updated, setUpdated] = useState(false);
+    const [guesses, setGuesses] = useState<Array<string>>([]);
 
     const handleLetterChange = (e: ChangeEvent<HTMLInputElement>) => {
         if (new RegExp(/[^A-Za-z]/, "g").test(e.target.value)) return;
@@ -30,6 +32,7 @@ export default function Board() {
                 : l
             )
         );
+        setUpdated(true);
     }
 
     const handleKeyDown = (e: ReactKeyboardEvent<HTMLInputElement>) => {
@@ -46,29 +49,32 @@ export default function Board() {
 
     const handleUserKeyPress = useCallback((event: KeyboardEvent) => {
         if (event.key === "Enter" && !letters.some(l => !l.value.length)) {
-            alert(JSON.stringify(letters, null, 4));
+            // alert(JSON.stringify(letters, null, 4));
+            const guessedWord = letters.map(({ value }) => value).join("");
+            setGuesses(p => p.concat(guessedWord));
+            setGuess(p => p += 1);
+            setLetters(prevLetters => prevLetters.map(l => ({ ...l, value: "", status: "" })));
         }
     }, [letters]);
-
-    const handleSubmit = (e: FormEvent<HTMLFormElement>) => {
-        e.preventDefault();
-        alert("Hello World!");
-    }
 
     useEffect(() => {
         window.addEventListener("keydown", handleUserKeyPress);
 
         return () => {
-            window.removeEventListener('keydown', handleUserKeyPress);
+            window.removeEventListener("keydown", handleUserKeyPress);
         }
     }, [handleUserKeyPress]);
 
     return (
-        <div className="w-[300px] grid grid-cols-1 gap-2">
+        <div className="w-full max-w-[360px] h-[480px] grid grid-rows-6 gap-1.5">
             {[1, 2, 3, 4, 5, 6].map(guess => (
                 activeGuess === guess
-                    ? <form onSubmit={handleSubmit} key={guess}>
-                        <FocusTrapper className="grid grid-cols-5 gap-2 text-white font-bold text-4xl">
+                    ? <form onSubmit={(e) => e.preventDefault()} key={guess} className="flex">
+                        <FocusTrapper
+                            updated={updated}
+                            setUpdated={setUpdated}
+                            className="grid grid-cols-5 gap-1.5 text-white font-bold text-4xl"
+                        >
                             {letters.map(({ id, value }) => (
                                 <Fragment key={id}>
                                     <label className="hidden" htmlFor={`letter {id}`}>Letter {id}</label>
@@ -82,8 +88,8 @@ export default function Board() {
                                         onKeyDown={handleKeyDown}
                                         className={
                                             clsx(
-                                                "w-[57px] h-[57px] select-none uppercase text-center border-2 bg-transparent focus:border-gray-400 focus-visible:border-gray-400",
-                                                value.length ? "border-gray-500" : "border-gray-700"
+                                                "inline-flex justify-center items-center select-none uppercase text-center border-2 bg-transparent focus:border-gray-400 focus-visible:border-gray-400 before:content-[''] before:inline-block before:pb-[100%]",
+                                                value.length ? "border-gray-500 animate-pop" : "border-gray-700 animate-push"
                                             )
                                         }
                                         type="text"
@@ -92,8 +98,15 @@ export default function Board() {
                             ))}
                         </FocusTrapper>
                     </form>
-                    : <div key={guess} className="grid grid-cols-5 gap-2 text-white font-bold text-4xl">
-                        {[1, 2, 3, 4, 5].map(letter => <div key={letter} className="w-[57px] h-[57px] border-2 border-gray-700 bg-transparent before:content-[''] before:inline-block before:pb-[100%]" />)}
+                    :
+                    <div key={guess} className="grid grid-cols-5 gap-1.5 text-white font-bold text-4xl">
+                        {[1, 2, 3, 4, 5].map(letter =>
+                            Boolean(guesses[guess - 1]?.length)
+                                ? <p key={letter} className={clsx("uppercase inline-flex justify-center items-center border-2 border-transparent bg-gray-700 before:content-[''] before:inline-block before:pb-[100%]", `delay-${guess}`)}>
+                                    {guesses[guess - 1][letter - 1]}
+                                </p>
+                                : <div key={letter} className={clsx("animate-push border-2 border-gray-700 bg-transparent before:content-[''] before:inline-block before:pb-[100%]", `delay-${guess}`)} />
+                        )}
                     </div>
             ))}
         </div>

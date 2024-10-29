@@ -5,15 +5,19 @@ import { ACCESSIBLE_ELEMENTS, isFocusable } from "./utils/accessbilityHelpers";
 
 export type FocusTrapperProps = {
     children?: ReactNode,
-    className?: string
-    onEscapePress?: () => void
+    className?: string,
+    onEscapePress?: () => void,
+    focusOnMount?: boolean,
+    updated: boolean,
+    setUpdated: (v: boolean) => void,
 }
 
-export default function FocusTrapper({ children, className, onEscapePress }: FocusTrapperProps) {
+export default function FocusTrapper({ children, className, onEscapePress, focusOnMount, setUpdated, updated }: FocusTrapperProps) {
     const [tabIndex, setTabIndex] = useState(-1);
     const tabbableItems = useRef<Array<HTMLElement>>([]);
     const lastActiveElement = useRef<HTMLElement | null>(null);
     const focusTrapRef = useRef<HTMLDivElement | null>(null);
+    const isMounted = useRef(focusOnMount);
 
     const handleClick = (event: MouseEvent) => {
         const tabbableItemIndex =
@@ -65,6 +69,24 @@ export default function FocusTrapper({ children, className, onEscapePress }: Foc
     }, []);
 
     useEffect(() => {
+        const tabItemsLength = tabbableItems.current.length - 1
+        if (tabIndex === tabItemsLength || !updated) {
+            setUpdated(false);
+            return;
+        };
+
+        const nextIndex = tabIndex + 1;
+        const currentIndex = nextIndex > tabItemsLength ? 0 : nextIndex;
+        setUpdated(false);
+        setTabIndex(currentIndex);
+    }, [tabIndex, updated, setUpdated]);
+
+    useEffect(() => {
+        if (!isMounted.current) {
+            isMounted.current = true;
+            return;
+        }
+
         tabbableItems.current?.[tabIndex]?.focus();
     }, [tabIndex]);
 

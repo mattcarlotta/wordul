@@ -38,6 +38,7 @@ export default function RootLayout({
         <html lang="en">
             <body
                 className={clsx(worddull.className, "antialiased min-h-screen")}
+                cz-shortcut-listen="true"
             >
                 {children}
             </body>
