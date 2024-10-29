@@ -77,7 +77,7 @@ export default function Board() {
                         >
                             {letters.map(({ id, value }) => (
                                 <Fragment key={id}>
-                                    <label className="hidden" htmlFor={`letter {id}`}>Letter {id}</label>
+                                    <label className="hidden" htmlFor={id}>Letter {id}</label>
                                     <input
                                         max={1}
                                         min={1}
