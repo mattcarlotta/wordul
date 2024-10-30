@@ -1,6 +1,6 @@
-import type { AccessibleElement } from "../types"
+import type { AccessibleElement } from "../types";
 
-export const ACCESSIBLE_ELEMENTS = ["a[href]", "input", "button:not(:disabled)", "[tabindex]"]
+export const ACCESSIBLE_ELEMENTS = ["a[href]", "input", "button:not(:disabled)", "[tabindex]"];
 
 export function isFocusable(element: AccessibleElement) {
     const { disabled, href, nodeName, rel, type, tabIndex } = element;

@@ -4,25 +4,24 @@ import type { AccessibleElement } from "./types";
 import { ACCESSIBLE_ELEMENTS, isFocusable } from "./utils/accessbilityHelpers";
 
 export type FocusTrapperProps = {
-    children?: ReactNode,
-    className?: string,
-    onEscapePress?: () => void,
-    setAddedChar: (v: boolean) => void,
+    children?: ReactNode;
+    className?: string;
+    onEscapePress?: () => void;
+    setAddedChar: (v: boolean) => void;
     addedChar: boolean;
-    setDeletedChar: (v: boolean) => void,
-    deletedChar: boolean,
-}
+    setDeletedChar: (v: boolean) => void;
+    deletedChar: boolean;
+};
 
-export default function FocusTrapper(
-    {
-        children,
-        className,
-        onEscapePress,
-        addedChar,
-        setAddedChar,
-        deletedChar,
-        setDeletedChar,
-    }: FocusTrapperProps) {
+export default function FocusTrapper({
+    children,
+    className,
+    onEscapePress,
+    addedChar,
+    setAddedChar,
+    deletedChar,
+    setDeletedChar
+}: FocusTrapperProps) {
     const [tabIndex, setTabIndex] = useState(0);
     const tabbableItems = useRef<Array<HTMLElement>>([]);
     const lastActiveElement = useRef<HTMLElement | null>(null);
@@ -30,20 +29,22 @@ export default function FocusTrapper(
 
     const handleClick = (event: MouseEvent) => {
         const tabbableItemIndex =
-            tabbableItems.current?.findIndex((node) => node.isEqualNode(event.target as HTMLElement)) || 0;
+            tabbableItems.current?.findIndex((node) =>
+                node.isEqualNode(event.target as HTMLElement)
+            ) || 0;
 
         setTabIndex(tabbableItemIndex >= 0 ? tabbableItemIndex : 0);
-    }
+    };
 
     const handlePrevFocus = useCallback(() => {
-        const tabItemsLength = tabbableItems.current.length - 1
+        const tabItemsLength = tabbableItems.current.length - 1;
         const prevIndex = tabIndex - 1;
         const currentIndex = prevIndex < 0 ? tabItemsLength : prevIndex;
         setTabIndex(currentIndex);
     }, [tabIndex]);
 
     const handleNextFocus = useCallback(() => {
-        const tabItemsLength = tabbableItems.current.length - 1
+        const tabItemsLength = tabbableItems.current.length - 1;
         const nextIndex = tabIndex + 1;
         const currentIndex = nextIndex > tabItemsLength ? 0 : nextIndex;
         setTabIndex(currentIndex);
@@ -64,7 +65,7 @@ export default function FocusTrapper(
             event.stopPropagation();
             onEscapePress?.();
         }
-    }
+    };
 
     useEffect(() => {
         if (focusTrapRef.current) {
@@ -81,15 +82,15 @@ export default function FocusTrapper(
 
         return () => {
             lastActiveElement.current?.focus();
-        }
+        };
     }, []);
 
     useEffect(() => {
-        const tabItemsLength = tabbableItems.current.length - 1
+        const tabItemsLength = tabbableItems.current.length - 1;
         if (tabIndex === tabItemsLength || !addedChar) {
             setAddedChar(false);
             return;
-        };
+        }
 
         setAddedChar(false);
         handleNextFocus();
@@ -99,7 +100,7 @@ export default function FocusTrapper(
         if (tabIndex === 0 || !deletedChar) {
             setDeletedChar(false);
             return;
-        };
+        }
 
         setDeletedChar(false);
         handlePrevFocus();
@@ -108,7 +109,6 @@ export default function FocusTrapper(
     useEffect(() => {
         tabbableItems.current?.[tabIndex]?.focus();
     }, [tabIndex]);
-
 
     return (
         <div
@@ -120,5 +120,5 @@ export default function FocusTrapper(
         >
             {children}
         </div>
-    )
+    );
 }
