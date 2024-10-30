@@ -20,6 +20,7 @@ function Button({ char, children, className, disabled, label, onButtonPress }: B
             type="button"
             aria-label={label}
             aria-disabled={disabled}
+            disabled={disabled}
             onClick={() => onButtonPress(char)}
         >
             {children}
@@ -29,6 +30,7 @@ function Button({ char, children, className, disabled, label, onButtonPress }: B
 
 type KeyboardProps = {
     backspaceDisabled?: boolean;
+    disabled: boolean;
     enterDisabled?: boolean;
     keys: Array<string>;
     onButtonPress: (value: string) => void;
@@ -39,6 +41,7 @@ type KeyboardProps = {
 
 export default function Keyboard({
     backspaceDisabled,
+    disabled,
     enterDisabled,
     keys,
     onButtonPress,
@@ -52,7 +55,7 @@ export default function Keyboard({
             {showEnter && (
                 <Button
                     className="flex-[1.5] text-sm"
-                    disabled={enterDisabled}
+                    disabled={disabled || enterDisabled}
                     onButtonPress={onButtonPress}
                     char="enter"
                     label="enter"
@@ -65,7 +68,7 @@ export default function Keyboard({
                     key={char}
                     char={char}
                     className="flex-1 text-2xl"
-                    disabled={false}
+                    disabled={disabled}
                     label={`added ${char}`}
                     onButtonPress={onButtonPress}
                 >
@@ -78,7 +81,7 @@ export default function Keyboard({
                     className="flex-[1.5] text-2xl"
                     label="backspace"
                     char="backspace"
-                    disabled={backspaceDisabled}
+                    disabled={disabled || backspaceDisabled}
                     onButtonPress={onButtonPress}
                 >
                     <svg

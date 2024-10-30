@@ -1,6 +1,6 @@
 import type { ChangeEvent, KeyboardEvent as ReactKeyboardEvent } from "react";
-import { Fragment } from "react";
 import type { Character } from "./types";
+import { Fragment } from "react";
 import clsx from "clsx";
 import FocusTrapper from "./FocusTrapper";
 
@@ -8,6 +8,7 @@ type GuessFormProps = {
     addedChar: boolean;
     characters: Array<Character>;
     deletedChar: boolean;
+    disabled: boolean;
     onCharacterChange: (e: ChangeEvent<HTMLInputElement>) => void;
     onKeyDown: (e: ReactKeyboardEvent<HTMLInputElement>) => void;
     setAddedChar: (v: boolean) => void;
@@ -18,6 +19,7 @@ export default function GuessForm({
     addedChar,
     characters,
     deletedChar,
+    disabled,
     onCharacterChange,
     onKeyDown,
     setAddedChar,
@@ -26,6 +28,7 @@ export default function GuessForm({
     return (
         <FocusTrapper
             className="flex"
+            disabled={disabled}
             addedChar={addedChar}
             setAddedChar={setAddedChar}
             deletedChar={deletedChar}
@@ -53,6 +56,7 @@ export default function GuessForm({
                                     : "border-gray-700 animate-push"
                             )}
                             type="text"
+                            readOnly={disabled}
                         />
                     </Fragment>
                 ))}

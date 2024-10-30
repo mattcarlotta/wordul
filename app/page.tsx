@@ -15,7 +15,9 @@ export default function Home() {
             </header>
             <header className="text-center border-b border-gray-500 py-4">
                 <section>
-                    <h1 className="text-4xl font-extrabold">Worddull</h1>
+                    <h1 className="text-4xl font-extrabold">
+                        Wordul
+                    </h1>
                 </section>
             </header>
             <main

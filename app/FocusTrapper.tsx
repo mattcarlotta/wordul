@@ -1,11 +1,12 @@
 import type { ReactNode, KeyboardEvent, MouseEvent } from "react";
-import { useCallback, useEffect, useRef, useState } from "react";
 import type { AccessibleElement } from "./types";
+import { useCallback, useEffect, useRef, useState } from "react";
 import { ACCESSIBLE_ELEMENTS, isFocusable } from "./utils/accessbilityHelpers";
 
 export type FocusTrapperProps = {
     children?: ReactNode;
     className?: string;
+    disabled?: boolean;
     onEscapePress?: () => void;
     setAddedChar: (v: boolean) => void;
     addedChar: boolean;
@@ -16,6 +17,7 @@ export type FocusTrapperProps = {
 export default function FocusTrapper({
     children,
     className,
+    disabled,
     onEscapePress,
     addedChar,
     setAddedChar,
@@ -51,16 +53,18 @@ export default function FocusTrapper({
     }, [tabIndex]);
 
     const handleFocusTrap = (event: KeyboardEvent) => {
+        if (disabled) return;
+
         const { key, shiftKey } = event;
         const tabPress = key === "Tab";
         const escKey = key === "Escape" || key === "Esc";
 
         if (shiftKey && tabPress) {
             event.preventDefault();
-            handleNextFocus();
+            handlePrevFocus();
         } else if (tabPress) {
             event.preventDefault();
-            handlePrevFocus();
+            handleNextFocus();
         } else if (escKey) {
             event.stopPropagation();
             onEscapePress?.();
@@ -68,22 +72,21 @@ export default function FocusTrapper({
     };
 
     useEffect(() => {
-        if (focusTrapRef.current) {
-            lastActiveElement.current = document.activeElement as HTMLElement;
+        if (disabled || !focusTrapRef.current) return;
+        lastActiveElement.current = document.activeElement as HTMLElement;
 
-            tabbableItems.current = Array.from(
-                focusTrapRef.current?.querySelectorAll(ACCESSIBLE_ELEMENTS.join(","))
-            ).filter((element) => isFocusable(element as AccessibleElement)) as HTMLElement[];
+        tabbableItems.current = Array.from(
+            focusTrapRef.current?.querySelectorAll(ACCESSIBLE_ELEMENTS.join(","))
+        ).filter((element) => isFocusable(element as AccessibleElement)) as HTMLElement[];
 
-            if (tabbableItems.current.length) {
-                setTabIndex(0);
-            }
+        if (tabbableItems.current.length) {
+            setTabIndex(0);
         }
 
         return () => {
             lastActiveElement.current?.focus();
         };
-    }, []);
+    }, [disabled]);
 
     useEffect(() => {
         const tabItemsLength = tabbableItems.current.length - 1;
@@ -107,8 +110,10 @@ export default function FocusTrapper({
     }, [tabIndex, deletedChar, setDeletedChar, handlePrevFocus]);
 
     useEffect(() => {
+        if (disabled) return;
+
         tabbableItems.current?.[tabIndex]?.focus();
-    }, [tabIndex]);
+    }, [disabled, tabIndex]);
 
     return (
         <div

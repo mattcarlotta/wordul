@@ -1,18 +1,19 @@
 "use client";
 
 import type { ChangeEvent, KeyboardEvent as ReactKeyboardEvent } from "react";
-import type { Character } from "./types";
+import type { Character, Guess } from "./types";
 import { useCallback, useEffect, useState } from "react";
+import cookie from "js-cookie";
 import Guessed from "./Guessed";
 import GuessForm from "./GuessForm";
 import Keyboard from "./Keyboard";
 
 const defaultCharacterState: Array<Character> = [
-    { id: "1", value: "", status: "" },
-    { id: "2", value: "", status: "" },
-    { id: "3", value: "", status: "" },
-    { id: "4", value: "", status: "" },
-    { id: "5", value: "", status: "" }
+    { id: "1", value: "" },
+    { id: "2", value: "" },
+    { id: "3", value: "" },
+    { id: "4", value: "" },
+    { id: "5", value: "" }
 ];
 
 const ALLOWED_GUESSES = [1, 2, 3, 4, 5, 6];
@@ -22,14 +23,20 @@ export default function Board() {
     const [characters, setCharacters] = useState<Array<Character>>(defaultCharacterState);
     const [addedChar, setAddedChar] = useState(false);
     const [deletedChar, setDeletedChar] = useState(false);
-    const [guesses, setGuesses] = useState<Array<string>>([]);
+    const [guesses, setGuesses] = useState<Array<Guess>>([]);
+    const [gameOver, setGameOver] = useState(false);
+    const [showWinOverlay, setShownWinOverlay] = useState(false);
+    const [answer, setAnswer] = useState<Array<string>>([]);
+    const [showLossOverlay, setShowLossOverlay] = useState(false);
 
     const handleCharacterChange = (e: ChangeEvent<HTMLInputElement>) => {
         if (new RegExp(/[^A-Za-z]/, "g").test(e.target.value)) return;
 
         setCharacters((prevChars) =>
             prevChars.map((c) =>
-                c.id === e.target.id ? { ...c, value: e.target.value.replace(c.value, "") } : c
+                c.id === e.target.id
+                    ? { ...c, value: e.target.value.replace(c.value, "").toLowerCase() }
+                    : c
             )
         );
         setAddedChar(true);
@@ -46,21 +53,68 @@ export default function Board() {
         }
     };
 
-    const handleSubmit = useCallback(() => {
+    const handleSubmit = useCallback(async () => {
         if (characters.some((c) => !c.value.length)) return;
 
-        setGuesses((p) => p.concat(characters.map(({ value }) => value).join("")));
-        setCurrentGuess((p) => (p += 1));
+        const answerDict = new Map();
+        answer.forEach((char) => {
+            const val = answerDict.get(char) || 0;
+            answerDict.set(char, val + 1);
+        });
+
+        const validatedGuess: Guess = {};
+        let correctCharacters = 0;
+        // check for correct characters only
+        for (let i = 0; i < characters.length; ++i) {
+            const answerChar = answer[i];
+            const guessedChar = characters[i].value;
+            if (answerChar === guessedChar) {
+                answerDict.set(guessedChar, answerDict.get(guessedChar) - 1);
+                validatedGuess[i] = { id: characters[i].id, value: guessedChar, status: "correct" };
+                correctCharacters += 1;
+            }
+        }
+
+        for (let i = 0; i < characters.length; ++i) {
+            if (validatedGuess[i]) continue;
+            const guessedChar = characters[i].value;
+            const val = answerDict.get(guessedChar) || 0;
+            answerDict.set(guessedChar, val - 1);
+            validatedGuess[i] = {
+                id: characters[i].id,
+                value: guessedChar,
+                status: val > 0 ? "valid" : "invalid"
+            };
+        }
+
+        setGuesses((prevGuesses) => [...prevGuesses, validatedGuess]);
+
+        // TODO: Store results to localStorage
+        // const gameState = JSON.parse(localStorage.getItem("gameState") || "{}");
+
         setCharacters(defaultCharacterState);
-    }, [characters]);
+        setCurrentGuess((p) => (p += 1));
+
+        if (correctCharacters === 5) {
+            window.setTimeout(() => {
+                setGameOver(true);
+                setShownWinOverlay(true);
+            }, 2000);
+        } else if (currentGuess + 1 === 7 && !gameOver) {
+            window.setTimeout(() => {
+                setGameOver(true);
+                setShowLossOverlay(true);
+            }, 2000);
+        }
+    }, [answer, characters, currentGuess, gameOver]);
 
     const handleUserKeyPress = useCallback(
         (event: KeyboardEvent) => {
-            if (event.key === "Enter") {
+            if (!gameOver && event.key === "Enter") {
                 handleSubmit();
             }
         },
-        [handleSubmit]
+        [gameOver, handleSubmit]
     );
 
     const handleButtonPress = (value: string) => {
@@ -99,6 +153,38 @@ export default function Board() {
         };
     }, [handleUserKeyPress]);
 
+    useEffect(() => {
+        // TODO: Obfuscate answer in cookie
+        const answer = cookie.get("wordul-a")?.split("");
+        if (!answer?.length) {
+            // TODO: Handle cookie error;
+        } else {
+            setAnswer(answer);
+        }
+    }, []);
+
+    if (showWinOverlay) {
+        return (
+            <div>
+                <h2>You Win!</h2>
+                <button type="button" onClick={() => setShownWinOverlay(false)}>
+                    Cancel
+                </button>
+            </div>
+        );
+    }
+
+    if (showLossOverlay) {
+        return (
+            <div>
+                <h2>You Lose!</h2>
+                <button type="button" onClick={() => setShowLossOverlay(false)}>
+                    Cancel
+                </button>
+            </div>
+        );
+    }
+
     return (
         <>
             <div
@@ -106,7 +192,7 @@ export default function Board() {
                 className="w-full max-w-[360px] h-[480px] grid grid-rows-6 gap-1.5"
             >
                 {ALLOWED_GUESSES.map((guess) =>
-                    currentGuess === guess ? (
+                    currentGuess === guess && !gameOver ? (
                         <GuessForm
                             key={guess}
                             addedChar={addedChar}
@@ -116,25 +202,33 @@ export default function Board() {
                             onKeyDown={handleKeyDown}
                             setAddedChar={setAddedChar}
                             setDeletedChar={setDeletedChar}
+                            disabled={gameOver}
                         />
                     ) : (
-                        <Guessed key={guess} guesses={guesses} selectedGuess={guess} />
+                        <Guessed
+                            key={guess}
+                            guessed={guesses[guess - 1] || null}
+                            selectedGuess={guess}
+                        />
                     )
                 )}
             </div>
             <div aria-label="keyboard" className="h-52 space-y-1.5 mx-2 mt-4 select-none w-full">
                 <Keyboard
                     keys={["q", "w", "e", "r", "t", "y", "u", "i", "o", "p"]}
+                    disabled={gameOver}
                     onButtonPress={handleButtonPress}
                 />
                 <Keyboard
                     keys={["a", "s", "d", "f", "g", "h", "j", "k", "l"]}
+                    disabled={gameOver}
                     onButtonPress={handleButtonPress}
                     showSpacers
                 />
                 <Keyboard
                     backspaceDisabled={!characters.some((c) => c.value.length)}
                     enterDisabled={characters.some((c) => !c.value.length)}
+                    disabled={gameOver}
                     keys={["z", "x", "c", "v", "b", "n", "m"]}
                     onButtonPress={handleButtonPress}
                     showEnter
