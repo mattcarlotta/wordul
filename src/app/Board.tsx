@@ -1,16 +1,11 @@
 "use client";
 
 import type { ChangeEvent, KeyboardEvent as ReactKeyboardEvent } from "react";
-import { Fragment, useCallback, useEffect, useState } from "react";
-import clsx from "clsx";
-import FocusTrapper from "./FocusTrapper";
+import type { Character } from "./types";
+import { useCallback, useEffect, useState } from "react";
+import Guessed from "./Guessed";
+import GuessForm from "./GuessForm";
 import Keyboard from "./Keyboard";
-
-type Character = {
-    id: string;
-    value: string;
-    status: string;
-};
 
 const defaultCharacterState: Array<Character> = [
     { id: "1", value: "", status: "" },
@@ -19,6 +14,8 @@ const defaultCharacterState: Array<Character> = [
     { id: "4", value: "", status: "" },
     { id: "5", value: "", status: "" }
 ];
+
+const ALLOWED_GUESSES = [1, 2, 3, 4, 5, 6];
 
 export default function Board() {
     const [currentGuess, setCurrentGuess] = useState(1);
@@ -108,97 +105,38 @@ export default function Board() {
                 aria-label="game board"
                 className="w-full max-w-[360px] h-[480px] grid grid-rows-6 gap-1.5"
             >
-                {[1, 2, 3, 4, 5, 6].map((guess) =>
+                {ALLOWED_GUESSES.map((guess) =>
                     currentGuess === guess ? (
-                        <FocusTrapper
+                        <GuessForm
                             key={guess}
-                            className="flex"
                             addedChar={addedChar}
-                            setAddedChar={setAddedChar}
+                            characters={characters}
                             deletedChar={deletedChar}
+                            onCharacterChange={handleCharacterChange}
+                            onKeyDown={handleKeyDown}
+                            setAddedChar={setAddedChar}
                             setDeletedChar={setDeletedChar}
-                        >
-                            <form
-                                onSubmit={(e) => e.preventDefault()}
-                                className="grid grid-cols-5 gap-1.5 text-white font-bold text-3xl"
-                            >
-                                {characters.map(({ id, value }) => (
-                                    <Fragment key={id}>
-                                        <label className="hidden" htmlFor={id}>
-                                            Character {id}
-                                        </label>
-                                        <input
-                                            id={id}
-                                            value={value}
-                                            autoComplete="off"
-                                            onChange={handleCharacterChange}
-                                            onKeyDown={handleKeyDown}
-                                            className={clsx(
-                                                "inline-flex justify-center items-center select-none uppercase text-center border-2 bg-transparent focus:border-gray-400 focus-visible:border-gray-400 before:content-[''] before:inline-block before:pb-[100%]",
-                                                value.length
-                                                    ? "border-gray-500 animate-pop"
-                                                    : "border-gray-700 animate-push"
-                                            )}
-                                            type="text"
-                                        />
-                                    </Fragment>
-                                ))}
-                            </form>
-                        </FocusTrapper>
+                        />
                     ) : (
-                        <div
-                            key={guess}
-                            className="grid grid-cols-5 gap-1.5 text-white font-bold text-3xl"
-                        >
-                            {[0, 1, 2, 3, 4].map((characterIdx) =>
-                                guesses[guess - 1]?.length ? (
-                                    <p
-                                        key={characterIdx}
-                                        className={clsx(
-                                            "uppercase inline-flex animate-reveal justify-center items-center border-2 border-transparent bg-gray-700 before:content-[''] before:inline-block before:pb-[100%]",
-                                            characterIdx === 0 && "animation-delay-100",
-                                            characterIdx === 1 && "animation-delay-200",
-                                            characterIdx === 2 && "animation-delay-300",
-                                            characterIdx === 3 && "animation-delay-400",
-                                            characterIdx === 4 && "animation-delay-500"
-                                        )}
-                                    >
-                                        {guesses[guess - 1][characterIdx]}
-                                    </p>
-                                ) : (
-                                    <div
-                                        key={characterIdx}
-                                        className={clsx(
-                                            "animate-push border-2 border-gray-700 bg-transparent before:content-[''] before:inline-block before:pb-[100%]",
-                                            guess === 1 && "animation-delay-0",
-                                            guess === 2 && "animation-delay-100",
-                                            guess === 3 && "animation-delay-200",
-                                            guess === 4 && "animation-delay-300",
-                                            guess === 5 && "animation-delay-400",
-                                            guess === 6 && "animation-delay-500"
-                                        )}
-                                    />
-                                )
-                            )}
-                        </div>
+                        <Guessed key={guess} guesses={guesses} selectedGuess={guess} />
                     )
                 )}
             </div>
             <div aria-label="keyboard" className="h-52 space-y-1.5 mx-2 mt-4 select-none w-full">
                 <Keyboard
-                    handleButtonPress={handleButtonPress}
                     keys={["q", "w", "e", "r", "t", "y", "u", "i", "o", "p"]}
+                    onButtonPress={handleButtonPress}
                 />
                 <Keyboard
-                    handleButtonPress={handleButtonPress}
                     keys={["a", "s", "d", "f", "g", "h", "j", "k", "l"]}
+                    onButtonPress={handleButtonPress}
                     showSpacers
                 />
                 <Keyboard
                     backspaceDisabled={!characters.some((c) => c.value.length)}
                     enterDisabled={characters.some((c) => !c.value.length)}
-                    handleButtonPress={handleButtonPress}
                     keys={["z", "x", "c", "v", "b", "n", "m"]}
+                    onButtonPress={handleButtonPress}
                     showEnter
                     showBackspace
                 />

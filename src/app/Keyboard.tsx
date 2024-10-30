@@ -6,11 +6,11 @@ type ButtonProps = {
     children: ReactNode;
     className?: string;
     disabled?: boolean;
-    handleButtonPress: (value: string) => void;
     label: string;
+    onButtonPress: (value: string) => void;
 };
 
-function Button({ char, children, className, disabled, handleButtonPress, label }: ButtonProps) {
+function Button({ char, children, className, disabled, label, onButtonPress }: ButtonProps) {
     return (
         <button
             className={clsx(
@@ -20,7 +20,7 @@ function Button({ char, children, className, disabled, handleButtonPress, label 
             type="button"
             aria-label={label}
             aria-disabled={disabled}
-            onClick={() => handleButtonPress(char)}
+            onClick={() => onButtonPress(char)}
         >
             {children}
         </button>
@@ -31,7 +31,7 @@ type KeyboardProps = {
     backspaceDisabled?: boolean;
     enterDisabled?: boolean;
     keys: Array<string>;
-    handleButtonPress: (value: string) => void;
+    onButtonPress: (value: string) => void;
     showBackspace?: boolean;
     showEnter?: boolean;
     showSpacers?: boolean;
@@ -41,7 +41,7 @@ export default function Keyboard({
     backspaceDisabled,
     enterDisabled,
     keys,
-    handleButtonPress,
+    onButtonPress,
     showBackspace,
     showEnter,
     showSpacers
@@ -53,7 +53,7 @@ export default function Keyboard({
                 <Button
                     className="flex-[1.5] text-sm"
                     disabled={enterDisabled}
-                    handleButtonPress={handleButtonPress}
+                    onButtonPress={onButtonPress}
                     char="enter"
                     label="enter"
                 >
@@ -67,7 +67,7 @@ export default function Keyboard({
                     className="flex-1 text-2xl"
                     disabled={false}
                     label={`added ${char}`}
-                    handleButtonPress={handleButtonPress}
+                    onButtonPress={onButtonPress}
                 >
                     {char}
                 </Button>
@@ -79,7 +79,7 @@ export default function Keyboard({
                     label="backspace"
                     char="backspace"
                     disabled={backspaceDisabled}
-                    handleButtonPress={handleButtonPress}
+                    onButtonPress={onButtonPress}
                 >
                     <svg
                         aria-hidden="true"
