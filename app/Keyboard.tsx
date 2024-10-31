@@ -1,4 +1,5 @@
 import type { ReactNode } from "react";
+import type { CharacterStatus } from "./types";
 import clsx from "clsx";
 
 type ButtonProps = {
@@ -8,15 +9,18 @@ type ButtonProps = {
     disabled?: boolean;
     label: string;
     onButtonPress: (value: string) => void;
+    status?: CharacterStatus
 };
 
-function Button({ char, children, className, disabled, label, onButtonPress }: ButtonProps) {
-    // TODO: Change color of button based upon status
+function Button({ char, children, className, disabled, label, onButtonPress, status }: ButtonProps) {
     return (
         <button
             className={clsx(
                 "flex justify-center items-center uppercase font-bold border-none p-0 mx-1 h-14 rounded select-none bg-gray-500",
-                className
+                className,
+                status === "correct" && "bg-green-700",
+                status === "valid" && "bg-yellow-500",
+                status === "invalid" && "bg-gray-700",
             )}
             type="button"
             aria-label={label}
@@ -34,6 +38,7 @@ type KeyboardProps = {
     disabled: boolean;
     enterDisabled?: boolean;
     keys: Array<string>;
+    keyStatuses: Record<string, CharacterStatus>;
     onButtonPress: (value: string) => void;
     showBackspace?: boolean;
     showEnter?: boolean;
@@ -45,6 +50,7 @@ export default function Keyboard({
     disabled,
     enterDisabled,
     keys,
+    keyStatuses,
     onButtonPress,
     showBackspace,
     showEnter,
@@ -72,6 +78,7 @@ export default function Keyboard({
                     disabled={disabled}
                     label={`added ${char}`}
                     onButtonPress={onButtonPress}
+                    status={keyStatuses[char]}
                 >
                     {char}
                 </Button>

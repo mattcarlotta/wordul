@@ -1,8 +1,8 @@
 "use client";
 
 import type { ChangeEvent, KeyboardEvent as ReactKeyboardEvent } from "react";
-import type { Character, Guess } from "./types";
-import { useCallback, useEffect, useState } from "react";
+import type { Character, CharacterStatus, Guess } from "./types";
+import { useCallback, useEffect, useMemo, useState } from "react";
 import cookie from "js-cookie";
 import Guessed from "./Guessed";
 import GuessForm from "./GuessForm";
@@ -26,8 +26,27 @@ export default function Board() {
     const [guesses, setGuesses] = useState<Array<Guess>>([]);
     const [gameOver, setGameOver] = useState(false);
     const [showWinOverlay, setShownWinOverlay] = useState(false);
-    const [answer, setAnswer] = useState("");
     const [showLossOverlay, setShowLossOverlay] = useState(false);
+    const keyStatuses = useMemo(() => {
+        const kS: Record<string, CharacterStatus> = {};
+        for (let i = 0; i < guesses.length; ++i) {
+            const guess = guesses[i];
+            if (!guess) continue;
+
+            for (let j = 0; j < 5; ++j) {
+                const val = guess[j].value;
+                const status = guess[j].status;
+                if (kS[val] === "correct") continue;
+
+                if (status === "correct" || status === "valid") {
+                    kS[val] = status
+                } else if (kS[val] !== "valid") {
+                    kS[val] = "invalid";
+                }
+            }
+        }
+        return kS;
+    }, [guesses]);
 
     const handleCharacterChange = (e: ChangeEvent<HTMLInputElement>) => {
         if (new RegExp(/[^A-Za-z]/, "g").test(e.target.value)) return;
@@ -54,7 +73,8 @@ export default function Board() {
     };
 
     const handleSubmit = useCallback(async () => {
-        if (characters.some((c) => !c.value.length)) return;
+        const answer = cookie.get("wordul-a");
+        if (characters.some((c) => !c.value.length) || !answer) return;
 
         const answerDict = new Map();
         const validatedGuess: Guess = {};
@@ -84,10 +104,11 @@ export default function Board() {
             validatedGuess[i] = { ...characters[i], status: val > 0 ? "valid" : "invalid" };
         }
 
-        setGuesses((prevGuesses) => [...prevGuesses, validatedGuess]);
-
-        // TODO: Store results to localStorage
-        // const gameState = JSON.parse(localStorage.getItem("gameState") || "{}");
+        setGuesses((prevGuesses) => {
+            const gameState = [...prevGuesses, validatedGuess]
+            localStorage.setItem("gameState", JSON.stringify(gameState));
+            return gameState;
+        });
 
         setCharacters(defaultCharacterState);
         setCurrentGuess((p) => (p += 1));
@@ -103,7 +124,7 @@ export default function Board() {
                 setShowLossOverlay(true);
             }, 2000);
         }
-    }, [answer, characters, currentGuess, gameOver]);
+    }, [characters, currentGuess, gameOver]);
 
     const handleUserKeyPress = useCallback(
         (event: KeyboardEvent) => {
@@ -142,6 +163,14 @@ export default function Board() {
         }
     };
 
+    const handleGameReset = () => {
+        setCurrentGuess(1);
+        setCharacters(defaultCharacterState);
+        setGuesses([]);
+        setGameOver(false);
+        localStorage.removeItem("gameState");
+    }
+
     useEffect(() => {
         window.addEventListener("keydown", handleUserKeyPress);
 
@@ -151,13 +180,29 @@ export default function Board() {
     }, [handleUserKeyPress]);
 
     useEffect(() => {
-        // TODO: Obfuscate answer in cookie
-        const answer = cookie.get("wordul-a");
-        if (answer?.length !== 5) {
-            // TODO: Handle cookie error;
-        } else {
-            setAnswer(answer);
+        const gameState: Array<Guess> = JSON.parse(localStorage.getItem("gameState") || "[]");
+        if (!gameState.length) return;
+
+        setGuesses(gameState);
+        setCurrentGuess(gameState.length + 1);
+        let correctGuessCharacters = 0;
+        for (let i = 0; i < gameState.length; ++i) {
+            const guess = gameState[i];
+            if (!guess) continue;
+
+            for (let j = 0; j < 5; ++j) {
+                if (guess[j].status !== "correct") {
+                    correctGuessCharacters = 0;
+                    break;
+                }
+                ++correctGuessCharacters;
+            }
         }
+        setGameOver(correctGuessCharacters === 5 || correctGuessCharacters != 5 && gameState.length === 6);
+        window.setTimeout(() => {
+            setShownWinOverlay(correctGuessCharacters === 5);
+            setShowLossOverlay(correctGuessCharacters != 5 && gameState.length === 6);
+        }, 2000);
     }, []);
 
     if (showWinOverlay) {
@@ -184,6 +229,7 @@ export default function Board() {
 
     return (
         <>
+            <button type="button" onClick={handleGameReset}>Reset</button>
             <div
                 aria-label="game board"
                 className="w-full max-w-[360px] h-[480px] grid grid-rows-6 gap-1.5"
@@ -213,11 +259,13 @@ export default function Board() {
             <div aria-label="keyboard" className="h-52 space-y-1.5 mx-2 mt-4 select-none w-full">
                 <Keyboard
                     keys={["q", "w", "e", "r", "t", "y", "u", "i", "o", "p"]}
+                    keyStatuses={keyStatuses}
                     disabled={gameOver}
                     onButtonPress={handleButtonPress}
                 />
                 <Keyboard
                     keys={["a", "s", "d", "f", "g", "h", "j", "k", "l"]}
+                    keyStatuses={keyStatuses}
                     disabled={gameOver}
                     onButtonPress={handleButtonPress}
                     showSpacers
@@ -227,6 +275,7 @@ export default function Board() {
                     enterDisabled={characters.some((c) => !c.value.length)}
                     disabled={gameOver}
                     keys={["z", "x", "c", "v", "b", "n", "m"]}
+                    keyStatuses={keyStatuses}
                     onButtonPress={handleButtonPress}
                     showEnter
                     showBackspace

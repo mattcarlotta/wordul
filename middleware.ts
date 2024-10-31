@@ -7,7 +7,7 @@ export function middleware() {
 
     response.cookies.set({
         name: "wordul-a",
-        value: "sassy",
+        value: "angry",
         path: "/",
         maxAge: 2592000000,
         httpOnly: false,
