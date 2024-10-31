@@ -26,7 +26,7 @@ export default function Board() {
     const [guesses, setGuesses] = useState<Array<Guess>>([]);
     const [gameOver, setGameOver] = useState(false);
     const [showWinOverlay, setShownWinOverlay] = useState(false);
-    const [answer, setAnswer] = useState<Array<string>>([]);
+    const [answer, setAnswer] = useState("");
     const [showLossOverlay, setShowLossOverlay] = useState(false);
 
     const handleCharacterChange = (e: ChangeEvent<HTMLInputElement>) => {
@@ -57,35 +57,31 @@ export default function Board() {
         if (characters.some((c) => !c.value.length)) return;
 
         const answerDict = new Map();
-        answer.forEach((char) => {
-            const val = answerDict.get(char) || 0;
-            answerDict.set(char, val + 1);
-        });
-
         const validatedGuess: Guess = {};
         let correctCharacters = 0;
         // check for correct characters only
         for (let i = 0; i < characters.length; ++i) {
             const answerChar = answer[i];
             const guessedChar = characters[i].value;
-            if (answerChar !== guessedChar) continue;
-            
-            answerDict.set(guessedChar, answerDict.get(guessedChar) - 1);
-            validatedGuess[i] = { id: characters[i].id, value: guessedChar, status: "correct" };
+
+            if (answerChar !== guessedChar) {
+                const val = answerDict.get(answerChar) || 0;
+                answerDict.set(answerChar, val + 1);
+                continue;
+            }
+
+            validatedGuess[i] = { ...characters[i], status: "correct" };
             correctCharacters += 1;
         }
 
+
         for (let i = 0; i < characters.length; ++i) {
             if (validatedGuess[i]) continue;
-            
+
             const guessedChar = characters[i].value;
             const val = answerDict.get(guessedChar) || 0;
             answerDict.set(guessedChar, val - 1);
-            validatedGuess[i] = {
-                id: characters[i].id,
-                value: guessedChar,
-                status: val > 0 ? "valid" : "invalid"
-            };
+            validatedGuess[i] = { ...characters[i], status: val > 0 ? "valid" : "invalid" };
         }
 
         setGuesses((prevGuesses) => [...prevGuesses, validatedGuess]);
@@ -156,8 +152,8 @@ export default function Board() {
 
     useEffect(() => {
         // TODO: Obfuscate answer in cookie
-        const answer = cookie.get("wordul-a")?.split("");
-        if (!answer?.length) {
+        const answer = cookie.get("wordul-a");
+        if (answer?.length !== 5) {
             // TODO: Handle cookie error;
         } else {
             setAnswer(answer);

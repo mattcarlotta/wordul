@@ -11,6 +11,7 @@ type ButtonProps = {
 };
 
 function Button({ char, children, className, disabled, label, onButtonPress }: ButtonProps) {
+    // TODO: Change color of button based upon status
     return (
         <button
             className={clsx(
