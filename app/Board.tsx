@@ -68,15 +68,16 @@ export default function Board() {
         for (let i = 0; i < characters.length; ++i) {
             const answerChar = answer[i];
             const guessedChar = characters[i].value;
-            if (answerChar === guessedChar) {
-                answerDict.set(guessedChar, answerDict.get(guessedChar) - 1);
-                validatedGuess[i] = { id: characters[i].id, value: guessedChar, status: "correct" };
-                correctCharacters += 1;
-            }
+            if (answerChar !== guessedChar) continue;
+            
+            answerDict.set(guessedChar, answerDict.get(guessedChar) - 1);
+            validatedGuess[i] = { id: characters[i].id, value: guessedChar, status: "correct" };
+            correctCharacters += 1;
         }
 
         for (let i = 0; i < characters.length; ++i) {
             if (validatedGuess[i]) continue;
+            
             const guessedChar = characters[i].value;
             const val = answerDict.get(guessedChar) || 0;
             answerDict.set(guessedChar, val - 1);
