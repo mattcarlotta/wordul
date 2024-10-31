@@ -38,7 +38,7 @@ export default function Board() {
                 const status = guess[j].status;
                 if (kS[val] === "correct") continue;
 
-                if (status === "correct" || status === "valid") {
+                if (status !== "invalid") {
                     kS[val] = status
                 } else if (kS[val] !== "valid") {
                     kS[val] = "invalid";
