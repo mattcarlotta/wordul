@@ -16,7 +16,10 @@ export default function Home() {
             <header className="text-center border-b border-gray-500 py-4">
                 <section>
                     <h1 className="text-4xl font-extrabold">
-                        Wordul
+                        W
+                        <span className="text-green-700">ord</span>
+                        <span className="text-gray-600">u</span>
+                        <span className="text-yellow-500">l</span>
                     </h1>
                 </section>
             </header>

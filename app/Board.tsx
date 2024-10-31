@@ -3,6 +3,7 @@
 import type { ChangeEvent, KeyboardEvent as ReactKeyboardEvent } from "react";
 import type { Character, CharacterStatus, Guess } from "./types";
 import { useCallback, useEffect, useMemo, useState } from "react";
+import crypto from "crypto-js";
 import cookie from "js-cookie";
 import Guessed from "./Guessed";
 import GuessForm from "./GuessForm";
@@ -73,7 +74,8 @@ export default function Board() {
     };
 
     const handleSubmit = useCallback(async () => {
-        const answer = cookie.get("wordul-a");
+        const encAnswer = cookie.get("wordul-a") || "";
+        const answer = crypto.AES.decrypt(encAnswer, process.env.NEXT_PUBLIC_WORDUL_SECRET).toString(crypto.enc.Utf8);
         if (characters.some((c) => !c.value.length) || !answer) return;
 
         const answerDict = new Map();
@@ -226,6 +228,7 @@ export default function Board() {
             </div>
         );
     }
+
 
     return (
         <>
