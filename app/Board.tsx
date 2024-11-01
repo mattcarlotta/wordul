@@ -200,10 +200,10 @@ export default function Board() {
                 ++correctGuessCharacters;
             }
         }
-        setGameOver(correctGuessCharacters === 5 || correctGuessCharacters != 5 && gameState.length === 6);
+        setGameOver(correctGuessCharacters === 5 || correctGuessCharacters !== 5 && gameState.length === 6);
         window.setTimeout(() => {
             setShownWinOverlay(correctGuessCharacters === 5);
-            setShowLossOverlay(correctGuessCharacters != 5 && gameState.length === 6);
+            setShowLossOverlay(correctGuessCharacters !== 5 && gameState.length === 6);
         }, 2000);
     }, []);
 
