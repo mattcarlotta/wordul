@@ -40,7 +40,10 @@ export default function GuessForm({
             >
                 {characters.map(({ id, value }) => (
                     <Fragment key={id}>
-                        <label className="hidden" htmlFor={id}>
+                        <label
+                            className="border-none h-px -mx-[1px] overflow-hidden p-0 absolute w-px"
+                            htmlFor={id}
+                        >
                             Character {id}
                         </label>
                         <input
@@ -50,7 +53,7 @@ export default function GuessForm({
                             onChange={onCharacterChange}
                             onKeyDown={onKeyDown}
                             className={clsx(
-                                "inline-flex justify-center items-center select-none uppercase text-center border-2 bg-transparent focus:border-gray-400 focus-visible:border-gray-400 before:content-[''] before:inline-block before:pb-[100%]",
+                                "inline-flex justify-center items-center select-none uppercase text-center border-2 bg-transparent focus:border-gray-400 focus-visible:border-gray-200 before:content-[''] before:inline-block before:pb-[100%]",
                                 value.length
                                     ? "border-gray-500 animate-pop"
                                     : "border-gray-700 animate-push"

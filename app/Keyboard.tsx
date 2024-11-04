@@ -9,18 +9,26 @@ type ButtonProps = {
     disabled?: boolean;
     label: string;
     onButtonPress: (value: string) => void;
-    status?: CharacterStatus
+    status?: CharacterStatus;
 };
 
-function Button({ char, children, className, disabled, label, onButtonPress, status }: ButtonProps) {
+function Button({
+    char,
+    children,
+    className,
+    disabled,
+    label,
+    onButtonPress,
+    status
+}: ButtonProps) {
     return (
         <button
             className={clsx(
-                "flex justify-center items-center uppercase font-bold border-none p-0 mx-1 h-14 rounded select-none bg-gray-500",
+                "flex justify-center items-center uppercase font-bold border p-0 mx-1 h-14 rounded select-none border-transparent bg-gray-600 focus:border-gray-400 focus-visible:border-gray-200",
                 className,
                 status === "correct" && "bg-green-700",
                 status === "valid" && "bg-yellow-500",
-                status === "invalid" && "bg-gray-700",
+                status === "invalid" && "bg-gray-700"
             )}
             type="button"
             aria-label={label}

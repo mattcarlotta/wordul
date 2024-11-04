@@ -40,7 +40,7 @@ export default function Board() {
                 if (kS[val] === "correct") continue;
 
                 if (status !== "invalid") {
-                    kS[val] = status
+                    kS[val] = status;
                 } else if (kS[val] !== "valid") {
                     kS[val] = "invalid";
                 }
@@ -75,7 +75,10 @@ export default function Board() {
 
     const handleSubmit = useCallback(async () => {
         const encAnswer = cookie.get("wordul-a") || "";
-        const answer = crypto.AES.decrypt(encAnswer, process.env.NEXT_PUBLIC_WORDUL_SECRET).toString(crypto.enc.Utf8);
+        const answer = crypto.AES.decrypt(
+            encAnswer,
+            process.env.NEXT_PUBLIC_WORDUL_SECRET
+        ).toString(crypto.enc.Utf8);
         if (characters.some((c) => !c.value.length) || !answer) return;
 
         const answerDict = new Map();
@@ -96,7 +99,6 @@ export default function Board() {
             correctCharacters += 1;
         }
 
-
         for (let i = 0; i < characters.length; ++i) {
             if (validatedGuess[i]) continue;
 
@@ -107,7 +109,7 @@ export default function Board() {
         }
 
         setGuesses((prevGuesses) => {
-            const gameState = [...prevGuesses, validatedGuess]
+            const gameState = [...prevGuesses, validatedGuess];
             localStorage.setItem("gameState", JSON.stringify(gameState));
             return gameState;
         });
@@ -170,8 +172,10 @@ export default function Board() {
         setCharacters(defaultCharacterState);
         setGuesses([]);
         setGameOver(false);
+        setShowLossOverlay(false);
+        setShownWinOverlay(false);
         localStorage.removeItem("gameState");
-    }
+    };
 
     useEffect(() => {
         window.addEventListener("keydown", handleUserKeyPress);
@@ -200,7 +204,9 @@ export default function Board() {
                 ++correctGuessCharacters;
             }
         }
-        setGameOver(correctGuessCharacters === 5 || correctGuessCharacters !== 5 && gameState.length === 6);
+        setGameOver(
+            correctGuessCharacters === 5 || (correctGuessCharacters != 5 && gameState.length === 6)
+        );
         window.setTimeout(() => {
             setShownWinOverlay(correctGuessCharacters === 5);
             setShowLossOverlay(correctGuessCharacters !== 5 && gameState.length === 6);
@@ -209,10 +215,14 @@ export default function Board() {
 
     if (showWinOverlay) {
         return (
-            <div>
-                <h2>You Win!</h2>
-                <button type="button" onClick={() => setShownWinOverlay(false)}>
-                    Cancel
+            <div className="space-y-2">
+                <h2 className="text-center text-2xl">You Win!</h2>
+                <button
+                    className="border px-4 py-2 border-transparent transition-all hover:border-gray-400 focus:border-gray-400 focus-visible:border-gray-200"
+                    type="button"
+                    onClick={() => setShownWinOverlay(false)}
+                >
+                    Go Back
                 </button>
             </div>
         );
@@ -220,23 +230,29 @@ export default function Board() {
 
     if (showLossOverlay) {
         return (
-            <div>
-                <h2>You Lose!</h2>
-                <button type="button" onClick={() => setShowLossOverlay(false)}>
-                    Cancel
+            <div className="space-y-2">
+                <h2 className="text-center text-2xl">You Lose!</h2>
+                <button
+                    className="border px-4 py-2 border-transparent transition-all hover:border-gray-400 focus:border-gray-400 focus-visible:border-gray-200"
+                    type="button"
+                    onClick={handleGameReset}
+                >
+                    Try Again?
                 </button>
             </div>
         );
     }
 
-
     return (
         <>
-            <button type="button" onClick={handleGameReset}>Reset</button>
-            <div
-                aria-label="game board"
-                className="w-full max-w-[360px] h-[480px] grid grid-rows-6 gap-1.5"
+            <button
+                type="button"
+                className="border px-4 py-2 border-transparent transition-all hover:border-gray-400 focus:border-gray-400 focus-visible:border-gray-200"
+                onClick={handleGameReset}
             >
+                Reset
+            </button>
+            <div className="w-full max-w-[360px] h-[480px] grid grid-rows-6 gap-1.5">
                 {ALLOWED_GUESSES.map((guess) =>
                     currentGuess === guess && !gameOver ? (
                         <GuessForm
