@@ -14,7 +14,7 @@ function Guess({ charPosition, children, status }: GuessProps) {
             className={clsx(
                 "uppercase inline-flex animate-reveal justify-center items-center border-2 border-transparent before:content-[''] before:inline-block before:pb-[100%]",
                 status === "correct" && "bg-green-700",
-                status === "valid" && "bg-yellow-500",
+                status === "valid" && "bg-yellow-600",
                 status === "invalid" && "bg-gray-700",
                 charPosition === 0 && "animation-delay-100",
                 charPosition === 1 && "animation-delay-200",

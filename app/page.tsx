@@ -16,7 +16,7 @@ export default function Home() {
                     <h1 className="text-3xl font-extrabold xs:text-4xl">
                         W<span className="text-green-700">ord</span>
                         <span className="text-gray-500">u</span>
-                        <span className="text-yellow-500">l</span>
+                        <span className="text-yellow-600">l</span>
                     </h1>
                 </section>
             </header>

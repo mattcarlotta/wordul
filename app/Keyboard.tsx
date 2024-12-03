@@ -27,7 +27,7 @@ function Button({
                 "flex justify-center items-center uppercase font-bold border p-0 mx-1 rounded select-none border-transparent bg-gray-600 focus:border-gray-400 focus-visible:border-gray-200 h-10 xs:h-14",
                 className,
                 status === "correct" && "bg-green-700",
-                status === "valid" && "bg-yellow-500",
+                status === "valid" && "bg-yellow-600",
                 status === "invalid" && "bg-gray-800 text-gray-500"
             )}
             type="button"
