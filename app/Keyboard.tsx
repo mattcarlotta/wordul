@@ -28,7 +28,7 @@ function Button({
                 className,
                 status === "correct" && "bg-green-700",
                 status === "valid" && "bg-yellow-500",
-                status === "invalid" && "bg-gray-700"
+                status === "invalid" && "bg-gray-800 text-gray-500"
             )}
             type="button"
             aria-label={label}
