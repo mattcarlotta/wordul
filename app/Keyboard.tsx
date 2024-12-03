@@ -24,7 +24,7 @@ function Button({
     return (
         <button
             className={clsx(
-                "flex justify-center items-center uppercase font-bold border p-0 mx-1 h-14 rounded select-none border-transparent bg-gray-600 focus:border-gray-400 focus-visible:border-gray-200",
+                "flex justify-center items-center uppercase font-bold border p-0 mx-1 rounded select-none border-transparent bg-gray-600 focus:border-gray-400 focus-visible:border-gray-200 h-10 xs:h-14",
                 className,
                 status === "correct" && "bg-green-700",
                 status === "valid" && "bg-yellow-500",
@@ -66,10 +66,10 @@ export default function Keyboard({
 }: KeyboardProps) {
     return (
         <div className="flex w-full mx-auto my-0">
-            {showSpacers && <div className="flex-[0.5]" />}
+            {showSpacers && <div className="flex-[0.5] hidden xs:block" />}
             {showEnter && (
                 <Button
-                    className="flex-[1.5] text-sm"
+                    className="flex-[1.5] text-[0.65rem] xs:text-sm"
                     disabled={disabled || enterDisabled}
                     onButtonPress={onButtonPress}
                     char="enter"
@@ -82,7 +82,7 @@ export default function Keyboard({
                 <Button
                     key={char}
                     char={char}
-                    className="flex-1 text-2xl"
+                    className="flex-1 text-lg xs:text-2xl"
                     disabled={disabled}
                     label={`added ${char}`}
                     onButtonPress={onButtonPress}
@@ -91,7 +91,7 @@ export default function Keyboard({
                     {char}
                 </Button>
             ))}
-            {showSpacers && <div className="flex-[0.5]" />}
+            {showSpacers && <div className="flex-[0.5] hidden xs:block" />}
             {showBackspace && (
                 <Button
                     className="flex-[1.5] text-2xl"

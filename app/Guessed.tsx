@@ -35,7 +35,7 @@ type GuessedProps = {
 
 export default function Guessed({ guessed, selectedGuess }: GuessedProps) {
     return (
-        <div className="grid grid-cols-5 gap-1.5 text-white font-bold text-3xl">
+        <div className="grid grid-cols-5 gap-1.5 text-white font-bold text-2xl xs:text-3xl">
             {[0, 1, 2, 3, 4].map((characterIdx) =>
                 guessed?.[characterIdx] ? (
                     <Guess

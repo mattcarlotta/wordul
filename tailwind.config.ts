@@ -36,6 +36,9 @@ const config: Config = {
             },
             transitionDelay: {
                 "400": "400ms",
+            },
+            screens: {
+                "xs": "400",
             }
         },
     },

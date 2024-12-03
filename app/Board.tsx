@@ -252,7 +252,7 @@ export default function Board() {
             >
                 Reset
             </button>
-            <div className="w-full max-w-[360px] h-[480px] grid grid-rows-6 gap-1.5">
+            <div className="w-full max-w-[360px] h-[480px] grid grid-rows-6 gap-1.5 px-2 xs:px-0">
                 {ALLOWED_GUESSES.map((guess) =>
                     currentGuess === guess && !gameOver ? (
                         <GuessForm
@@ -275,7 +275,7 @@ export default function Board() {
                     )
                 )}
             </div>
-            <div aria-label="keyboard" className="h-52 space-y-1.5 mx-2 mt-4 select-none w-full">
+            <div aria-label="keyboard" className="w-full px-2 space-y-1.5 mx-2 mt-4 select-none sm:px-0 xs:h-52">
                 <Keyboard
                     keys={["q", "w", "e", "r", "t", "y", "u", "i", "o", "p"]}
                     keyStatuses={keyStatuses}

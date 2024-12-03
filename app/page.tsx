@@ -13,7 +13,7 @@ export default function Home() {
             </a>
             <header id="Wordul" className="text-center border-b border-gray-500 py-4">
                 <section>
-                    <h1 className="text-4xl font-extrabold">
+                    <h1 className="text-3xl font-extrabold xs:text-4xl">
                         W<span className="text-green-700">ord</span>
                         <span className="text-gray-500">u</span>
                         <span className="text-yellow-500">l</span>
