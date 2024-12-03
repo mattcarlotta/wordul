@@ -275,7 +275,10 @@ export default function Board() {
                     )
                 )}
             </div>
-            <div aria-label="keyboard" className="w-full px-2 space-y-1.5 mx-2 mt-4 select-none sm:px-0 xs:h-52">
+            <div
+                aria-label="keyboard"
+                className="w-full px-2 space-y-1.5 mx-2 mt-4 select-none sm:px-0 xs:h-52"
+            >
                 <Keyboard
                     keys={["q", "w", "e", "r", "t", "y", "u", "i", "o", "p"]}
                     keyStatuses={keyStatuses}
